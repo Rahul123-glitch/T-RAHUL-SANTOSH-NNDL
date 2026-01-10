@@ -1,0 +1,47 @@
+import torch
+
+# New input and target
+x = torch.tensor([[1., 1., 0.]])
+y = torch.tensor([[0.]])
+
+# New weights and biases
+W1 = torch.tensor([[0.2, -0.3],
+                   [0.4, 0.1],
+                   [-0.5, 0.2]])
+W2 = torch.tensor([[0.6],
+                   [-0.4]])
+b1 = torch.tensor([[0.0, 0.1]])
+b2 = torch.tensor([[-0.05]])
+
+lr = 0.2
+
+# Sigmoid and derivative
+def sigmoid(z):
+    return 1 / (1 + torch.exp(-z))
+
+def sigmoid_derivative(a):
+    return a * (1 - a)
+
+# Training loop
+for epoch in range(5):
+    # Forward pass
+    h = sigmoid(x @ W1 + b1)
+    o = sigmoid(h @ W2 + b2)
+
+    # Loss (MSE)
+    loss = torch.mean((y - o) ** 2)
+
+    # Backward pass
+    do = (y - o) * sigmoid_derivative(o)
+    dh = (do @ W2.T) * sigmoid_derivative(h)
+
+    # Update weights and biases
+    W2 += lr * h.T @ do
+    b2 += lr * do
+    W1 += lr * x.T @ dh
+    b1 += lr * dh
+
+    print(f"Epoch {epoch+1} | Loss: {loss.item():.4f} | Output: {o.item():.4f}")
+
+# Final output
+print("\nFinal Prediction:", o.item())
